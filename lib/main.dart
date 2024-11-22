@@ -35,10 +35,6 @@ class _GPACalculatorState extends State<GPACalculator> {
   double totalCredits = 0;
   double totalGradePoints = 0;
 
-  String moduleNameError = '';
-  String moduleCreditError = '';
-  String moduleGradeError = '';
-
   double convertGradeToPoint(double grade) {
     if (grade >= 95 && grade <= 100) {
       return 5.0;
@@ -66,30 +62,40 @@ class _GPACalculatorState extends State<GPACalculator> {
     double? moduleCredit = double.tryParse(moduleCreditController.text);
     double? moduleGrade = double.tryParse(moduleGradeController.text);
 
-    setState(() {
-      moduleNameError = '';
-      moduleCreditError = '';
-      moduleGradeError = '';
-    });
-
-    if (moduleName.isEmpty) {
-      setState(() {
-        moduleNameError = 'Module name cannot be empty';
-      });
+    if (moduleCredit == null || moduleGrade == null || moduleName.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Please fill out all fields correctly.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
       return;
     }
 
-    if (moduleCredit == null || moduleCredit < 1 || moduleCredit > 10) {
-      setState(() {
-        moduleCreditError = 'Credit must be between 1 and 10';
-      });
-      return;
-    }
-
-    if (moduleGrade == null || moduleGrade < 0 || moduleGrade > 100) {
-      setState(() {
-        moduleGradeError = 'Grade must be between 0 and 100';
-      });
+    if (moduleCredit < 1 ||
+        moduleCredit > 10 ||
+        moduleGrade < 0 ||
+        moduleGrade > 100) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Invalid Input'),
+          content: Text('Module credit must be 1-10 and grade must be 0-100.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
       return;
     }
 
@@ -127,6 +133,45 @@ class _GPACalculatorState extends State<GPACalculator> {
     moduleNameController.clear();
     moduleCreditController.clear();
     moduleGradeController.clear();
+
+    // add another module
+    _askForAnotherModule();
+  }
+
+  void _askForAnotherModule() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Add Another Module?'),
+        content: Text('Do you want to enter another module?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleUserResponse('y');
+            },
+            child: Text('Yes'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleUserResponse('n');
+            },
+            child: Text('No'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Function to handle the user response to adding another module
+  void _handleUserResponse(String response) {
+    if (response == 'y') {
+      // Do nothing, the user will continue entering modules
+    } else if (response == 'n') {
+      // Close the dialog and show the GPA
+      Navigator.pop(context);
+    }
   }
 
   double calculateGPA() {
@@ -142,9 +187,6 @@ class _GPACalculatorState extends State<GPACalculator> {
       moduleNameController.clear();
       moduleCreditController.clear();
       moduleGradeController.clear();
-      moduleNameError = '';
-      moduleCreditError = '';
-      moduleGradeError = '';
     });
   }
 
@@ -152,8 +194,8 @@ class _GPACalculatorState extends State<GPACalculator> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('System Integration and Architecture 2024'),
-        backgroundColor: Colors.teal,
+        title: Text('welcome to GPA calculator!'),
+        backgroundColor: Colors.teal, // Emerald green
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -178,7 +220,6 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Name',
                   border: InputBorder.none,
-                  errorText: moduleNameError.isEmpty ? null : moduleNameError,
                 ),
               ),
             ),
@@ -195,8 +236,6 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Credit (1 to 10)',
                   border: InputBorder.none,
-                  errorText:
-                      moduleCreditError.isEmpty ? null : moduleCreditError,
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -214,7 +253,6 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Grade (0 to 100)',
                   border: InputBorder.none,
-                  errorText: moduleGradeError.isEmpty ? null : moduleGradeError,
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -223,8 +261,8 @@ class _GPACalculatorState extends State<GPACalculator> {
             ElevatedButton(
               onPressed: addModule,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal, // Emerald green button
-                foregroundColor: Colors.black, // Black text color
+                backgroundColor: Colors.teal, 
+                foregroundColor: Colors.white, 
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
