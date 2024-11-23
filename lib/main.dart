@@ -5,6 +5,8 @@ void main() {
 }
 
 class GPACalculatorApp extends StatelessWidget {
+  const GPACalculatorApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,6 +24,8 @@ class GPACalculatorApp extends StatelessWidget {
 }
 
 class GPACalculator extends StatefulWidget {
+  const GPACalculator({super.key});
+
   @override
   _GPACalculatorState createState() => _GPACalculatorState();
 }
@@ -34,10 +38,6 @@ class _GPACalculatorState extends State<GPACalculator> {
 
   double totalCredits = 0;
   double totalGradePoints = 0;
-
-  String moduleNameError = '';
-  String moduleCreditError = '';
-  String moduleGradeError = '';
 
   double convertGradeToPoint(double grade) {
     if (grade >= 95 && grade <= 100) {
@@ -66,43 +66,67 @@ class _GPACalculatorState extends State<GPACalculator> {
     double? moduleCredit = double.tryParse(moduleCreditController.text);
     double? moduleGrade = double.tryParse(moduleGradeController.text);
 
-    setState(() {
-      moduleNameError = '';
-      moduleCreditError = '';
-      moduleGradeError = '';
-    });
-
-    if (moduleName.isEmpty) {
+    if (moduleCredit == null || moduleGrade == null || moduleName.isEmpty) {
+      // Show error for missing inputs
       setState(() {
-        moduleNameError = 'Module name cannot be empty';
+        if (moduleName.isEmpty) {
+          moduleNameError = 'Please enter a module name';
+        }
+        if (moduleCredit == null) {
+          moduleCreditError = 'Please enter a valid module credit (1-10)';
+        }
+        if (moduleGrade == null) {
+          moduleGradeError = 'Please enter a valid module grade (0-100)';
+        }
       });
       return;
     }
 
-    if (moduleCredit == null || moduleCredit < 1 || moduleCredit > 10) {
+    if (moduleCredit < 1 ||
+        moduleCredit > 10 ||
+        moduleGrade < 0 ||
+        moduleGrade > 100) {
+      // Show error for invalid inputs
       setState(() {
-        moduleCreditError = 'Credit must be between 1 and 10';
-      });
-      return;
-    }
-
-    if (moduleGrade == null || moduleGrade < 0 || moduleGrade > 100) {
-      setState(() {
-        moduleGradeError = 'Grade must be between 0 and 100';
+        if (moduleCredit < 1 || moduleCredit > 10) {
+          moduleCreditError = 'Credit must be between 1 and 10';
+        }
+        if (moduleGrade < 0 || moduleGrade > 100) {
+          moduleGradeError = 'Grade must be between 0 and 100';
+        }
       });
       return;
     }
 
     if (totalCredits + moduleCredit > 18) {
+      // Show error if total credits exceed the limit
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Credit Limit Exceeded'),
-          content: Text('You cannot exceed a total of 18 credits.'),
+          title: const Text('Credit Limit Exceeded'),
+          content: const Text('You cannot exceed a total of 18 credits.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (modules.length >= 10) {
+      // Show error if the module limit is reached
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Module Limit Reached'),
+          content: const Text('You cannot add more than 10 modules.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -127,6 +151,47 @@ class _GPACalculatorState extends State<GPACalculator> {
     moduleNameController.clear();
     moduleCreditController.clear();
     moduleGradeController.clear();
+    moduleNameError = null;
+    moduleCreditError = null;
+    moduleGradeError = null;
+
+    // add another module
+    _askForAnotherModule();
+  }
+
+  void _askForAnotherModule() {
+    final TextEditingController responseController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Another Module?'),
+        content: TextField(
+          controller: responseController,
+          decoration: const InputDecoration(
+            labelText: 'enter y for Yes, n for No',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              String response = responseController.text.trim().toLowerCase();
+              Navigator.pop(context);
+              _handleUserResponse(response);
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleUserResponse(String response) {
+    if (response == 'y') {
+      // User wants to add another module
+    } else if (response == 'n') {
+      // Do nothing, the user chose not to add more modules
+    }
   }
 
   double calculateGPA() {
@@ -142,21 +207,25 @@ class _GPACalculatorState extends State<GPACalculator> {
       moduleNameController.clear();
       moduleCreditController.clear();
       moduleGradeController.clear();
-      moduleNameError = '';
-      moduleCreditError = '';
-      moduleGradeError = '';
+      moduleNameError = null;
+      moduleCreditError = null;
+      moduleGradeError = null;
     });
   }
+
+  String? moduleNameError;
+  String? moduleCreditError;
+  String? moduleGradeError;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('System Integration and Architecture 2024'),
+        title: const Text('Welcome to GPA Calculator!'),
         backgroundColor: Colors.teal,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: clearPage,
             tooltip: 'Clear All',
           ),
@@ -167,7 +236,7 @@ class _GPACalculatorState extends State<GPACalculator> {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8.0),
@@ -178,13 +247,13 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Name',
                   border: InputBorder.none,
-                  errorText: moduleNameError.isEmpty ? null : moduleNameError,
+                  errorText: moduleNameError,
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8.0),
@@ -195,15 +264,14 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Credit (1 to 10)',
                   border: InputBorder.none,
-                  errorText:
-                      moduleCreditError.isEmpty ? null : moduleCreditError,
+                  errorText: moduleCreditError,
                 ),
                 keyboardType: TextInputType.number,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8.0),
@@ -214,24 +282,24 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Grade (0 to 100)',
                   border: InputBorder.none,
-                  errorText: moduleGradeError.isEmpty ? null : moduleGradeError,
+                  errorText: moduleGradeError,
                 ),
                 keyboardType: TextInputType.number,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: addModule,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal, // Emerald green button
-                foregroundColor: Colors.black, // Black text color
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
-              child: Text('Add Module'),
+              child: const Text('Add Module'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
                 itemCount: modules.length,
@@ -240,17 +308,20 @@ class _GPACalculatorState extends State<GPACalculator> {
                   return ListTile(
                     title: Text('${module['name']}'),
                     subtitle: Text(
-                        'Credit: ${module['credit']}, Grade: ${module['grade']}'),
-                    trailing: Text('Point: ${module['point']}'),
+                        'Credits: ${module['credit']}, Grade: ${module['grade']}'),
+                    trailing: Text('Points: ${module['point']}'),
                   );
                 },
               ),
             ),
-            if (modules.isNotEmpty)
-              Text(
-                'GPA: ${calculateGPA().toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            const SizedBox(height: 20),
+            Text(
+              'GPA: ${calculateGPA().toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
               ),
+            ),
           ],
         ),
       ),
