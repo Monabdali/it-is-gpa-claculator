@@ -39,10 +39,13 @@ class _GPACalculatorState extends State<GPACalculator> {
   double totalCredits = 0;
   double totalGradePoints = 0;
 
+<<<<<<< HEAD
   String? moduleNameError;
   String? moduleCreditError;
   String? moduleGradeError;
 
+=======
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
   double convertGradeToPoint(double grade) {
     if (grade >= 95 && grade <= 100) {
       return 5.0;
@@ -71,6 +74,7 @@ class _GPACalculatorState extends State<GPACalculator> {
     double? moduleGrade = double.tryParse(moduleGradeController.text);
 
     if (moduleCredit == null || moduleGrade == null || moduleName.isEmpty) {
+<<<<<<< HEAD
       setState(() {
         if (moduleName.isEmpty) {
           moduleNameError = 'Please enter a module name';
@@ -82,6 +86,21 @@ class _GPACalculatorState extends State<GPACalculator> {
           moduleGradeError = 'Please enter a valid module grade (0-100)';
         }
       });
+=======
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Please fill out all fields correctly.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
       return;
     }
 
@@ -89,6 +108,7 @@ class _GPACalculatorState extends State<GPACalculator> {
         moduleCredit > 10 ||
         moduleGrade < 0 ||
         moduleGrade > 100) {
+<<<<<<< HEAD
       setState(() {
         if (moduleCredit < 1 || moduleCredit > 10) {
           moduleCreditError = 'Credit must be between 1 and 10';
@@ -97,6 +117,21 @@ class _GPACalculatorState extends State<GPACalculator> {
           moduleGradeError = 'Grade must be between 0 and 100';
         }
       });
+=======
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Invalid Input'),
+          content: Text('Module credit must be 1-10 and grade must be 0-100.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
       return;
     }
 
@@ -151,15 +186,21 @@ class _GPACalculatorState extends State<GPACalculator> {
     moduleNameController.clear();
     moduleCreditController.clear();
     moduleGradeController.clear();
+<<<<<<< HEAD
     moduleNameError = null;
     moduleCreditError = null;
     moduleGradeError = null;
 
     // After adding a module, ask the user if they want to add another one
+=======
+
+    // add another module
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
     _askForAnotherModule();
   }
 
   void _askForAnotherModule() {
+<<<<<<< HEAD
     final TextEditingController responseController = TextEditingController();
 
     showDialog(
@@ -180,12 +221,34 @@ class _GPACalculatorState extends State<GPACalculator> {
               _handleUserResponse(response);
             },
             child: const Text('Submit'),
+=======
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Add Another Module?'),
+        content: Text('Do you want to enter another module?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleUserResponse('y');
+            },
+            child: Text('Yes'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleUserResponse('n');
+            },
+            child: Text('No'),
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
           ),
         ],
       ),
     );
   }
 
+<<<<<<< HEAD
   void _handleUserResponse(String response) {
     if (response == 'y') {
       // User wants to add another module, no additional action needed
@@ -214,6 +277,16 @@ class _GPACalculatorState extends State<GPACalculator> {
         ],
       ),
     );
+=======
+  // Function to handle the user response to adding another module
+  void _handleUserResponse(String response) {
+    if (response == 'y') {
+      // Do nothing, the user will continue entering modules
+    } else if (response == 'n') {
+      // Close the dialog and show the GPA
+      Navigator.pop(context);
+    }
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
   }
 
   double calculateGPA() {
@@ -229,9 +302,12 @@ class _GPACalculatorState extends State<GPACalculator> {
       moduleNameController.clear();
       moduleCreditController.clear();
       moduleGradeController.clear();
+<<<<<<< HEAD
       moduleNameError = null;
       moduleCreditError = null;
       moduleGradeError = null;
+=======
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
     });
   }
 
@@ -239,8 +315,13 @@ class _GPACalculatorState extends State<GPACalculator> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+<<<<<<< HEAD
         title: const Text('Welcome to GPA Calculator!'),
         backgroundColor: Colors.teal,
+=======
+        title: Text('welcome to GPA calculator!'),
+        backgroundColor: Colors.teal, // Emerald green
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -265,7 +346,10 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Name',
                   border: InputBorder.none,
+<<<<<<< HEAD
                   errorText: moduleNameError,
+=======
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
                 ),
               ),
             ),
@@ -282,7 +366,10 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Credit (1 to 10)',
                   border: InputBorder.none,
+<<<<<<< HEAD
                   errorText: moduleCreditError,
+=======
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -300,7 +387,10 @@ class _GPACalculatorState extends State<GPACalculator> {
                 decoration: InputDecoration(
                   labelText: 'Module Grade (0 to 100)',
                   border: InputBorder.none,
+<<<<<<< HEAD
                   errorText: moduleGradeError,
+=======
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -309,8 +399,13 @@ class _GPACalculatorState extends State<GPACalculator> {
             ElevatedButton(
               onPressed: addModule,
               style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
                 backgroundColor: Colors.teal,
                 foregroundColor: Colors.white,
+=======
+                backgroundColor: Colors.teal, 
+                foregroundColor: Colors.white, 
+>>>>>>> 09db69ace46af262b1c3eac6b4f721dc9160453d
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
