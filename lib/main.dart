@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(GPACalculatorApp());
+  runApp(const GPACalculatorApp());
 }
 
 class GPACalculatorApp extends StatelessWidget {
@@ -18,7 +18,7 @@ class GPACalculatorApp extends StatelessWidget {
           secondary: Colors.tealAccent,
         ),
       ),
-      home: GPACalculator(),
+      home: const GPACalculator(),
     );
   }
 }
@@ -38,6 +38,10 @@ class _GPACalculatorState extends State<GPACalculator> {
 
   double totalCredits = 0;
   double totalGradePoints = 0;
+
+  String? moduleNameError;
+  String? moduleCreditError;
+  String? moduleGradeError;
 
   double convertGradeToPoint(double grade) {
     if (grade >= 95 && grade <= 100) {
@@ -67,7 +71,6 @@ class _GPACalculatorState extends State<GPACalculator> {
     double? moduleGrade = double.tryParse(moduleGradeController.text);
 
     if (moduleCredit == null || moduleGrade == null || moduleName.isEmpty) {
-      // Show error for missing inputs
       setState(() {
         if (moduleName.isEmpty) {
           moduleNameError = 'Please enter a module name';
@@ -86,7 +89,6 @@ class _GPACalculatorState extends State<GPACalculator> {
         moduleCredit > 10 ||
         moduleGrade < 0 ||
         moduleGrade > 100) {
-      // Show error for invalid inputs
       setState(() {
         if (moduleCredit < 1 || moduleCredit > 10) {
           moduleCreditError = 'Credit must be between 1 and 10';
@@ -99,7 +101,6 @@ class _GPACalculatorState extends State<GPACalculator> {
     }
 
     if (totalCredits + moduleCredit > 18) {
-      // Show error if total credits exceed the limit
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -117,7 +118,6 @@ class _GPACalculatorState extends State<GPACalculator> {
     }
 
     if (modules.length >= 10) {
-      // Show error if the module limit is reached
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -155,7 +155,7 @@ class _GPACalculatorState extends State<GPACalculator> {
     moduleCreditError = null;
     moduleGradeError = null;
 
-    // add another module
+    // After adding a module, ask the user if they want to add another one
     _askForAnotherModule();
   }
 
@@ -169,7 +169,7 @@ class _GPACalculatorState extends State<GPACalculator> {
         content: TextField(
           controller: responseController,
           decoration: const InputDecoration(
-            labelText: 'enter y for Yes, n for No',
+            labelText: 'Enter "y" for Yes, "n" for No',
           ),
         ),
         actions: [
@@ -188,10 +188,32 @@ class _GPACalculatorState extends State<GPACalculator> {
 
   void _handleUserResponse(String response) {
     if (response == 'y') {
-      // User wants to add another module
+      // User wants to add another module, no additional action needed
     } else if (response == 'n') {
       // Do nothing, the user chose not to add more modules
+    } else {
+      _showErrorDialog(
+          'Invalid input! Please enter "y" for Yes or "n" for No.');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _askForAnotherModule(); // Reopen the prompt for user input
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   double calculateGPA() {
@@ -212,10 +234,6 @@ class _GPACalculatorState extends State<GPACalculator> {
       moduleGradeError = null;
     });
   }
-
-  String? moduleNameError;
-  String? moduleCreditError;
-  String? moduleGradeError;
 
   @override
   Widget build(BuildContext context) {
